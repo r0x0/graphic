@@ -2,14 +2,54 @@
 
 #include <QDebug>
 
-DrawWidget::DrawWidget(QWidget *parent) : QOpenGLWidget(parent)
-{
+#include <QtGui/QImage>
 
+#include <math.h>
+
+static GLint cubeArray[][3] = {
+    {0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0},
+    {0, 0, 1}, {1, 0, 1}, {1, 1, 1}, {0, 1, 1},
+    {0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1},
+    {0, 1, 0}, {0, 1, 1}, {1, 1, 1}, {1, 1, 0},
+    {0, 1, 0}, {0, 0, 0}, {0, 0, 1}, {0, 1, 1},
+    {1, 0, 0}, {1, 1, 0}, {1, 1, 1}, {1, 0, 1}
+};
+
+static GLint cubeTextureArray[][2] = {
+    {0, 0}, {1, 0}, {1, 1}, {0, 1},
+    {0, 0}, {0, 1}, {1, 1}, {1, 0},
+    {0, 0}, {1, 0}, {1, 1}, {0, 1},
+    {1, 0}, {0, 0}, {0, 1}, {1, 1},
+    {0, 0}, {1, 0}, {1, 1}, {0, 1},
+    {1, 0}, {0, 0}, {0, 1}, {1, 1}
+};
+
+static GLint faceArray[][2] = {
+    {1, -1}, {1, 1}, {-1, 1}, {-1, -1}
+};
+
+static GLubyte colorArray[][4] = {
+    {102, 176, 54, 255},
+    {81, 141, 41, 255},
+    {62, 108, 32, 255},
+    {45, 79, 23, 255}
+};
+
+DrawWidget::DrawWidget(QWidget *parent)
+  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+{
+    // create the framebuffer object - make sure to have a current
+    // context before creating it
+    makeCurrent();
+    fbo = new QGLFramebufferObject(512, 512);
+    timerId = startTimer(20);
+    setWindowTitle(tr("OpenGL framebuffer objects 2"));
 }
 
 DrawWidget::~DrawWidget()
 {
-
+    glDeleteLists(pbufferList, 1);
+    delete fbo;
 }
 
 void DrawWidget::qNormalizeAngle(int &angle)
@@ -50,136 +90,172 @@ void DrawWidget::setZRotation(int angle)
     }
 }
 
+
 void DrawWidget::initializeGL()
 {
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glClearColor(0.0, 0.0, 0.0, 1.0);
-    static const GLfloat vertex_buffer_data[] = {
-        0.0, 0.8, 0.0,
-        -0.8, -0.8, 0.0,
-        0.8, -0.8, 0.0
-    };
-    f->glGenBuffers(1, &vertex_buffer);
-    f->glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    f->glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_STATIC_DRAW);
-//    qglClearColor(Qt::black);
+    glMatrixMode(GL_MODELVIEW);
 
-//    glEnable(GL_DEPTH_TEST);
-//    glEnable(GL_CULL_FACE);
-//    glShadeModel(GL_SMOOTH);
-//    glEnable(GL_LIGHTING);
-//    glEnable(GL_LIGHT0);
+    glEnable(GL_CULL_FACE);
 
-//    shaderProgram.addShaderFromSourceFile(QGLShader::Vertex, ":/vertexShader.vsh");
-//    shaderProgram.addShaderFromSourceFile(QGLShader::Fragment, ":/fragmentShader.fsh");
-//    shaderProgram.link();
-//    vertices << QVector3D(1, 0, -2) << QVector3D(0, 1, -2) << QVector3D(-1, 0, -2);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_INT, 0, cubeArray);
+    glTexCoordPointer(2, GL_INT, 0, cubeTextureArray);
+    glColorPointer(4, GL_UNSIGNED_BYTE, 0, colorArray);
 
-//    initializeOpenGLFunctions();
-//    static GLfloat lightPosition[4] = { 0, 0, 10, 1.0 };
-//    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
+
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    pbufferList = glGenLists(1);
+    glNewList(pbufferList, GL_COMPILE);
+    {
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+        // draw cube background
+        glPushMatrix();
+        glLoadIdentity();
+        glTranslatef(0.5f, 0.5f, -2.0f);
+        glDisable(GL_TEXTURE_2D);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_INT, 0, faceArray);
+        glDrawArrays(GL_QUADS, 0, 4);
+        glVertexPointer(3, GL_INT, 0, cubeArray);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glEnable(GL_TEXTURE_2D);
+        glPopMatrix();
+
+        // draw cube
+        glTranslatef(0.5f, 0.5f, 0.5f);
+        glRotatef(3.0f, 1.0f, 1.0f, 1.0f);
+        glTranslatef(-0.5f, -0.5f, -0.5f);
+        glColor4f(0.9f, 0.9f, 0.9f, 1.0f);
+        glDrawArrays(GL_QUADS, 0, 24);
+
+        glPushMatrix(); // this state is popped back in the paintGL() function
+    }
+    glEndList();
+
+    for (int i = 0; i < 3; ++i) {
+        yOffs[i] = 0.0f;
+        xInc[i] = 0.005f;
+        rot[i] = 0.0f;
+    }
+    xOffs[0]= 0.0f;
+    xOffs[1]= 0.5f;
+    xOffs[2]= 1.0f;
+
+    cubeTexture = bindTexture(QImage(":res/graphic/textures/cube.jpg"));
+
+    glPushMatrix(); // push to avoid stack underflow in the first paintGL() call
 }
 
-void DrawWidget::paintGL()
+void DrawWidget::resizeGL(int w, int h)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glTranslatef(0.0, 0.0, -10.0);
-    glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
-    glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
-    glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-    draw();
+    float aspect = w/(float)(h ? h : 1);
+    glFrustum(-aspect, aspect, -1, 1, 10, 100);
+    glTranslatef(-0.5f, -0.5f, -0.5f);
+    glTranslatef(0.0f, 0.0f, -15.0f);
 }
-
-void DrawWidget::resizeGL(int width, int height)
-{
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glViewport(0, 0, width, height);
-//    if (height == 0) {
-//    height = 1;
-//    }
-//    pMatrix.setToIdentity();
-//    pMatrix.perspective(60.0, (float) width / (float) height, 0.001, 1000);
-//    glViewport(0, 0, width, height);
-
-//    int side = qMin(width, height);
-//    glViewport((width - side) / 2, (height - side) / 2, side, side);
-
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//#ifdef QT_OPENGL_ES_1
-//    glOrthof(-2, +2, -2, +2, 1.0, 15.0);
-//#else
-//    glOrtho(-2, +2, -2, +2, 1.0, 15.0);
-//#endif
-//    glMatrixMode(GL_MODELVIEW);
-}
-
-//QSize DrawWidget::minimumSizeHint() const
-//{
-//    return QSize(200, 200);
-//}
-
-//QSize DrawWidget::sizeHint() const
-//{
-//    return QSize(800, 600);
-//}
 
 void DrawWidget::mousePressEvent(QMouseEvent *event)
 {
-    lastPos = event->pos();
+
 }
 
 void DrawWidget::mouseMoveEvent(QMouseEvent *event)
 {
-//    int dx = event->x() - lastPos.x();
-//    int dy = event->y() - lastPos.y();
 
-//    if (event->buttons() & Qt::LeftButton) {
-//        setXRotation(xRot + 8 * dy);
-//        setYRotation(yRot + 8 * dx);
-//    } else if (event->buttons() & Qt::RightButton) {
-//        setXRotation(xRot + 8 * dy);
-//        setZRotation(zRot + 8 * dx);
-//    }
-
-//    lastPos = event->pos();
 }
 
-void DrawWidget::draw()
+void DrawWidget::paintGL()
 {
-//    glc(Qt::red);
-    glBegin(GL_QUADS);
-       glNormal3f(0,0,-1);
-       glVertex3f(-1,-1,0);
-       glVertex3f(-1,1,0);
-       glVertex3f(1,1,0);
-       glVertex3f(1,-1,0);
+    glPopMatrix(); // pop the matrix pushed in the pbuffer list
 
-    glEnd();
-    glBegin(GL_TRIANGLES);
-       glNormal3f(0,-1,0.707);
-       glVertex3f(-1,-1,0);
-       glVertex3f(1,-1,0);
-       glVertex3f(0,0,1.2);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-       glNormal3f(1,0, 0.707);
-       glVertex3f(1,-1,0);
-       glVertex3f(1,1,0);
-       glVertex3f(0,0,1.2);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-       glNormal3f(0,1,0.707);
-       glVertex3f(1,1,0);
-       glVertex3f(-1,1,0);
-       glVertex3f(0,0,1.2);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-       glNormal3f(-1,0,0.707);
-       glVertex3f(-1,1,0);
-       glVertex3f(-1,-1,0);
-       glVertex3f(0,0,1.2);
-    glEnd();
+    // push the projection matrix and the entire GL state before
+    // doing any rendering into our framebuffer object
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+
+    glViewport(0, 0, fbo->size().width(), fbo->size().height());
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1, 1, -1, 1, -99, 99);
+    glTranslatef(-0.5f, -0.5f, 0.0f);
+    glMatrixMode(GL_MODELVIEW);
+
+    // render to the framebuffer object
+    fbo->bind();
+    glBindTexture(GL_TEXTURE_2D, cubeTexture);
+    glCallList(pbufferList);
+    fbo->release();
+
+    // pop the projection matrix and GL state back for rendering
+    // to the actual widget
+    glPopAttrib();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glBindTexture(GL_TEXTURE_2D, fbo->texture());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // draw the background
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glVertexPointer(2, GL_INT, 0, faceArray);
+    glTranslatef(-1.2f, -0.8f, 0.0f);
+    glScalef(0.2f, 0.2f, 0.2f);
+    for (int y = 0; y < 5; ++y) {
+        for (int x = 0; x < 5; ++x) {
+            glTranslatef(2.0f, 0, 0);
+            glColor4f(0.8f, 0.8f, 0.8f, 1.0f);
+            glDrawArrays(GL_QUADS, 0, 4);
+        }
+        glTranslatef(-10.0f, 2.0f, 0);
+    }
+    glVertexPointer(3, GL_INT, 0, cubeArray);
+
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+
+    // draw the bouncing cubes
+    drawCube(0, 0.0f, 1.5f, 2.5f, 1.5f);
+    drawCube(1, 1.0f, 2.0f, 2.5f, 2.0f);
+    drawCube(2, 2.0f, 3.5f, 2.5f, 2.5f);
+    glPopMatrix();
+}
+
+void DrawWidget::drawCube(int i, GLfloat z, GLfloat rotation, GLfloat jmp, GLfloat amp)
+{
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(xOffs[i], yOffs[i], z);
+    glTranslatef(0.5f, 0.5f, 0.5f);
+    GLfloat scale = 0.75 + i*(0.25f/2);
+    glScalef(scale, scale, scale);
+    glRotatef(rot[i], 1.0f, 1.0f, 1.0f);
+    glTranslatef(-0.5f, -0.5f, -0.5f);
+
+    glColor4f(1.0f, 1.0f, 1.0f, 0.8f);
+    glDrawArrays(GL_QUADS, 0, 24);
+
+    if (xOffs[i] > 1.0f || xOffs[i] < -1.0f) {
+        xInc[i] = -xInc[i];
+        xOffs[i] = xOffs[i] > 1.0f ? 1.0f : -1.0f;
+    }
+    xOffs[i] += xInc[i];
+    yOffs[i] = qAbs(cos((-3.141592f * jmp) * xOffs[i]) * amp) - 1;
+    rot[i] += rotation;
 }
 

@@ -1,8 +1,7 @@
 TEMPLATE = app
-QT       += console
-CONFIG   -= qt
+QT       += core gui opengl
 
-LIB += -lGL -lGLU -lglew -lglut
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 
 
@@ -12,7 +11,9 @@ SOURCES += main.cpp \
     graphic/objects/Brick.cpp \
     graphic/objects/MovableObject.cpp \
     graphic/objects/Object.cpp \
-    core/engine.cpp
+    core/engine.cpp \
+    mainwindow.cpp \
+    core/drawwidget.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -23,7 +24,15 @@ HEADERS += \
     graphic/objects/Brick.h \
     graphic/objects/MovableObject.h \
     graphic/objects/Object.h \
-    core/engine.h
+    core/engine.h \
+    mainwindow.h \
+    core/drawwidget.h
 
-FORMS +=
+FORMS += \
+    mainwindow.ui
+
+DISTFILES +=
+
+RESOURCES += \
+    resources.qrc
 

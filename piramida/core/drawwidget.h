@@ -1,13 +1,15 @@
 #ifndef DRAWWIDGET_H
 #define DRAWWIDGET_H
 
-#include <QOpenGLWidget>
+#include <QGLWidget>
 #include <QMouseEvent>
 #include <QMatrix>
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
+#include <QGLContext>
+#include <QGLFunctions>
+#include <QMatrix4x4>
+#include <QGLFramebufferObject>
 
-class DrawWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class DrawWidget : public QGLWidget, protected QGLFunctions
 {
     Q_OBJECT
 public:
@@ -44,10 +46,14 @@ private:
 
     QPoint lastPos;
 
-    QVector <QVector3D> vertices;
-    QMatrix4x4 m_projection;
-    QOpenGLContext *m_context;
+    GLfloat rot[3], xOffs[3], yOffs[3], xInc[3];
+    GLuint pbufferList;
+    GLuint cubeTexture;
+    int timerId;
 
+    QGLFramebufferObject *fbo;
+
+    void drawCube(int i, GLfloat z, GLfloat rotation, GLfloat jmp, GLfloat amp);
 };
 
 #endif // DRAWWIDGET_H
