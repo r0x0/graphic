@@ -9,6 +9,9 @@
 #include <QMatrix4x4>
 #include <QGLFramebufferObject>
 
+//#include "GL/glut.h"
+
+
 class DrawWidget : public QGLWidget, protected QGLFunctions
 {
     Q_OBJECT
@@ -46,14 +49,19 @@ private:
 
     QPoint lastPos;
 
-    GLfloat rot[3], xOffs[3], yOffs[3], xInc[3];
     GLuint pbufferList;
     GLuint cubeTexture;
     int timerId;
 
+    GLuint  filter;                                 // Which Filter To Use
+    GLuint  texture[3];                             // Storage for 3 textures
+
     QGLFramebufferObject *fbo;
 
     void drawCube(int i, GLfloat z, GLfloat rotation, GLfloat jmp, GLfloat amp);
+    void drawAxis();
+
+    GLuint axes_list;
 };
 
 #endif // DRAWWIDGET_H
