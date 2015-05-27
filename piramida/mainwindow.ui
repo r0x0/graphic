@@ -68,7 +68,7 @@
   <customwidget>
    <class>DrawWidget</class>
    <extends>QOpenGLWidget</extends>
-   <header>drawwidget.h</header>
+   <header>core/DrawWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

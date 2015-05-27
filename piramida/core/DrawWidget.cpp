@@ -1,21 +1,25 @@
-#include "drawwidget.h"
+#include "DrawWidget.h"
 
 #include <QDebug>
-
-#include <QtGui/QImage>
-
 #include <math.h>
 
 
-DrawWidget::DrawWidget(QWidget *parent)
-  : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
-{
+
+GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };
+GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat LightPosition[]= { 0.0f, 0.0f, 10.0f, 1.0f };
+
+DrawWidget::DrawWidget(QWidget *parent) : QGLWidget(QGLFormat(QGL::SampleBuffers), parent) {
+    prepareGl();
+    world = new World();
+}
+
+void DrawWidget::prepareGl(){
     // create the framebuffer object - make sure to have a current
     // context before creating it
     makeCurrent();
     fbo = new QGLFramebufferObject(512, 512);
     timerId = startTimer(20);
-//    setWindowTitle(tr("OpenGL framebuffer objects 2"));
 }
 
 DrawWidget::~DrawWidget()
@@ -62,22 +66,20 @@ void DrawWidget::setZRotation(int angle)
     }
 }
 
-GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };
-GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
-GLfloat LightPosition[]= { 0.0f, 0.0f, 10.0f, 1.0f };
-
 void DrawWidget::initializeGL()
 {
 
-    glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
-        glShadeModel(GL_SMOOTH);                        // Enable Smooth Shading
-        glClearColor(0.0f, 0.0f, 0.2f, 0.5f);                   // Black Background
-        glClearDepth(1.0f);                         // Depth Buffer Setup
-        glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
-        glDepthFunc(GL_LEQUAL);                         // The Type Of Depth Testing To Do
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);          // Really Nice Perspective
+        glEnable(GL_TEXTURE_2D);                            // Enable Texture Mapping
+        glShadeModel(GL_SMOOTH);                            // Enable Smooth Shading
+        glClearColor(0.0f, 0.0f, 0.2f, 0.5f);               // Black Background
+        glClearDepth(1.0f);                                 // Depth Buffer Setup
+        glEnable(GL_DEPTH_TEST);                            // Enables Depth Testing
+        glDepthFunc(GL_LEQUAL);                             // The Type Of Depth Testing To Do
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Really Nice Perspective
 
-//    glMatrixMode(GL_PROJECTION);
+
+        cubeTexture = bindTexture(QImage(":res/graphic/textures/cube.jpg"));
+        //    glMatrixMode(GL_PROJECTION);
 //    glLoadIdentity();
 //    gluPerspective(50.0, 1.0, 3.0, 7.0);
 
@@ -173,7 +175,7 @@ void DrawWidget::initializeGL()
 
         glEndList();
 
-    cubeTexture = bindTexture(QImage(":res/graphic/textures/cube.jpg"));
+
 
     glPushMatrix(); // push to avoid stack underflow in the first paintGL() call
 }

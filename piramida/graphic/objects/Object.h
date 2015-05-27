@@ -1,7 +1,9 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-class Object
+#include "Drawable.h"
+
+class Object : public Drawable
 {
 public:
     Object(float x, float y, float z) : x(x),y(y),z(z){}
@@ -16,8 +18,6 @@ public:
     volatile float rotZ;
 
     volatile float scale;
-
-    virtual void draw() = 0;
 };
 
 #endif // OBJECT_H

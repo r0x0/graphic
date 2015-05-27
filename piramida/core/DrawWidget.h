@@ -3,13 +3,12 @@
 
 #include <QGLWidget>
 #include <QMouseEvent>
-#include <QMatrix>
 #include <QGLContext>
 #include <QGLFunctions>
 #include <QMatrix4x4>
 #include <QGLFramebufferObject>
 
-//#include "GL/glut.h"
+#include "../graphic/World.h"
 
 
 class DrawWidget : public QGLWidget, protected QGLFunctions
@@ -40,6 +39,9 @@ public slots:
     void setXRotation(int angle);
 
 private:
+
+
+
     void draw();
     static void qNormalizeAngle(int &angle);
 
@@ -50,7 +52,6 @@ private:
     QPoint lastPos;
 
     GLuint pbufferList;
-    GLuint cubeTexture;
     int timerId;
 
     GLuint  filter;                                 // Which Filter To Use
@@ -62,6 +63,9 @@ private:
     void drawAxis();
 
     GLuint axes_list;
+GLint cubeTexture;
+    World *world;
+    void prepareGl();
 };
 
 #endif // DRAWWIDGET_H
