@@ -1,16 +1,23 @@
 #ifndef BRICK_H
 #define BRICK_H
 
-#include <QGLContext>
+#include <QGLFunctions>
+#include <QtOpenGL>
 #include "Object.h"
 
 class Brick : public Object
 {
+
 public:
     Brick();
     Brick(float x, float y, float z);
 
     void draw();
+    void loadTextures(Texture *texture);
+
+private:
+    GLuint  texture[3];                             // Storage for 3 textures
+
 };
 
 #endif // BRICK_H

@@ -8,7 +8,10 @@
 #include <QMatrix4x4>
 #include <QGLFramebufferObject>
 
+#include <QTimer>
+
 #include "../graphic/World.h"
+#include "../graphic/objects/Textures.h"
 
 
 class DrawWidget : public QGLWidget, protected QGLFunctions
@@ -23,31 +26,38 @@ protected:
     void paintGL();
     void resizeGL(int width, int height);
 
-//    QSize minimumSizeHint() const;
-//    QSize sizeHint() const;
-    void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
 signals:
-    void xRotationChanged(int angle);
-    void yRotationChanged(int angle);
-    void zRotationChanged(int angle);
 
 public slots:
-    void setZRotation(int angle);
-    void setYRotation(int angle);
-    void setXRotation(int angle);
+    void blender();
+    void turnOnOffLight();
+    void moveUp();
+    void moveBack();
+    void moveRight();
+    void moveLeft();
 
 private:
 
-
-
     void draw();
     static void qNormalizeAngle(int &angle);
+    void loadTextures();
+    void prepareGl();
 
-    int xRot;
-    int yRot;
-    int zRot;
+//    KEYS CONTROLS
+    bool blend = false;
+    bool light = true;
+
+    float xRot = 0 ;
+    float yRot = 0 ;
+    float zRot = 0 ;
+
+    float xCam = 0;
+    float yCam = 0;
+    float zCam = -10.0f;
+    float zoom = 5.0f;
 
     QPoint lastPos;
 
@@ -55,17 +65,17 @@ private:
     int timerId;
 
     GLuint  filter;                                 // Which Filter To Use
-    GLuint  texture[3];                             // Storage for 3 textures
+
 
     QGLFramebufferObject *fbo;
 
-    void drawCube(int i, GLfloat z, GLfloat rotation, GLfloat jmp, GLfloat amp);
-    void drawAxis();
-
     GLuint axes_list;
-GLint cubeTexture;
+    GLint cubeTexture;
     World *world;
-    void prepareGl();
+    Textures * textures;
+
+    QTimer * updater = new QTimer();
+
 };
 
 #endif // DRAWWIDGET_H

@@ -18,9 +18,9 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
-
 private:
     Ui::MainWindow *ui;
+    QPoint lastPos;
 };
 
 #endif // MAINWINDOW_H

@@ -5,6 +5,7 @@
 
 class Object : public Drawable
 {
+
 public:
     Object(float x, float y, float z) : x(x),y(y),z(z){}
     virtual ~Object(){}
@@ -18,6 +19,8 @@ public:
     volatile float rotZ;
 
     volatile float scale;
+
+    virtual void loadTextures(Texture *texture) = 0;
 };
 
 #endif // OBJECT_H
