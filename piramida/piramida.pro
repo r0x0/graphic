@@ -3,7 +3,7 @@ QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-LIBS += -lglut
+LIBS += -lglut -lGLU
 QMAKE_CFLAGS += -std=c++11
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -13,7 +13,6 @@ SOURCES += main.cpp \
     graphic/objects/Area.cpp \
     graphic/objects/Brick.cpp \
     core/DrawWidget.cpp \
-    core/Engine.cpp \
     MainWindow.cpp \
     graphic/objects/Object.cpp \
     graphic/objects/Textures.cpp \
@@ -30,7 +29,6 @@ HEADERS += \
     graphic/objects/Drawable.h \
     MainWindow.h \
     core/DrawWidget.h \
-    core/Engine.h \
     graphic/objects/Texture.h \
     graphic/objects/Textures.h
 

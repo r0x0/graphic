@@ -21,6 +21,8 @@ protected:
 private:
     Ui::MainWindow *ui;
     QPoint lastPos;
+    int currentFiler = 1;
+    bool cameraAuto = true;
 };
 
 #endif // MAINWINDOW_H

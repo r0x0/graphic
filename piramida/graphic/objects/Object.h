@@ -2,6 +2,8 @@
 #define OBJECT_H
 
 #include "Drawable.h"
+#include <QMutex>
+#include <QMutexLocker>
 
 class Object : public Drawable
 {
@@ -9,6 +11,8 @@ class Object : public Drawable
 public:
     Object(float x, float y, float z) : x(x),y(y),z(z){}
     virtual ~Object(){}
+
+    virtual void movePosition(float x, float y, float z) = 0;
 
     volatile float x;
     volatile float y;
@@ -20,7 +24,9 @@ public:
 
     volatile float scale;
 
-    virtual void loadTextures(Texture *texture) = 0;
+protected:
+    QMutex mutexObj;
+
 };
 
 #endif // OBJECT_H

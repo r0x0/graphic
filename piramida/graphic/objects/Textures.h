@@ -11,6 +11,7 @@ public:
 
     Texture *brickTexture;
     Texture *areaTexture;
+    Texture *flagTexture;
 };
 
 #endif // TEXTURES_H
