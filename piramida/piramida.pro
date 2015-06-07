@@ -3,7 +3,7 @@ QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-LIBS += -lglut -lGLU
+LIBS += -lglut
 QMAKE_CFLAGS += -std=c++11
 QMAKE_CXXFLAGS += -std=c++11
 
@@ -15,8 +15,7 @@ SOURCES += main.cpp \
     core/DrawWidget.cpp \
     MainWindow.cpp \
     graphic/objects/Object.cpp \
-    graphic/objects/Textures.cpp \
-    graphic/objects/textures.cpp
+    graphic/objects/Textures.cpp
 
 include(deployment.pri)
 qtcAddDeployment()

@@ -8,13 +8,14 @@
 #include <QMatrix4x4>
 #include <QGLFramebufferObject>
 #include <QGLFunctions>
-#include <GL/glu.h>
+//#include <GL/glu.h>
 
 #include <QTimer>
 
 #include "../graphic/World.h"
-#include "../graphic/objects/Textures.h"
+//#include "../graphic/objects/Textures.h"
 
+using namespace tex;
 
 class DrawWidget : public QGLWidget, protected QGLFunctions
 {
@@ -98,7 +99,7 @@ private:
 
     GLuint axes_list;
     World *world;
-    Textures * textures;
+    Textures2 * textures;
 
     QTimer * updater = new QTimer();
     QTimer * cameraUpdater = new QTimer();

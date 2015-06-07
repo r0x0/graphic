@@ -1,17 +1,18 @@
-#ifndef TEXTURES_H
-#define TEXTURES_H
+#ifndef TEXTURES2_H
+#define TEXTURES2_H
 
 #include "Texture.h"
 
-class Textures
+namespace tex{
+class Textures2
 {
 public:
-    Textures();
-    ~Textures();
+    Textures2();
+    ~Textures2();
 
     Texture *brickTexture;
     Texture *areaTexture;
     Texture *flagTexture;
 };
-
-#endif // TEXTURES_H
+}
+#endif // TEXTURES2_H

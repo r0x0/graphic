@@ -18,10 +18,9 @@
 #include <QMutex>
 #include <QMutexLocker>
 
-#include <list>
-
 
 using namespace std;
+using namespace tex;
 
 class World : public QThread
 {
@@ -31,7 +30,7 @@ public:
     explicit World(int size, int piramidHeight, QObject * parent = 0);
 
     void draw() ;
-    void loadTextures(Textures * textures);
+    void loadTextures(Textures2 * textures);
     void setFilter(int fileter);
     void setSpeedDown();
     void setSpeedUp();
@@ -41,7 +40,7 @@ protected:
     void run();
 
 private:
-    Textures *textures;
+    Textures2 *textures;
     int filter = 0;
     list<Area* > *areaList;
     list<Brick* > *brickList;

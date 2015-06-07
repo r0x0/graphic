@@ -140,7 +140,7 @@ void World::draw()
     }
 }
 
-void World::loadTextures(Textures *textures)
+void World::loadTextures(Textures2 *textures)
 {
     this->textures = textures;
     glGenTextures(3, textures->brickTexture->texture);

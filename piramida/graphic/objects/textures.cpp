@@ -1,12 +1,13 @@
 #include "Textures.h"
-
-Textures::Textures()
+namespace tex{
+Textures2::Textures2()
 {
 
 }
 
-Textures::~Textures()
+Textures2::~Textures2()
 {
 
 }
 
+}

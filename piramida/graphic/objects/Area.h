@@ -1,6 +1,8 @@
 #ifndef AREA_H
 #define AREA_H
 
+#include <QGLFunctions>
+#include <QtOpenGL>
 #include "Object.h"
 
 class Area : public Object

@@ -13,7 +13,7 @@ GLfloat spot_direction[] = { 0, -1.0, -0.5 };
 GLfloat fogColor[4]= {0.4f, 0.4f, 0.0f, 1.0f};      // Fog Color
 GLuint fogMode[]= { GL_EXP, GL_EXP2, GL_LINEAR };   // Storage For Three Types Of Fog
 
-GLUquadric *quadratic;               // Storage For Our Quadratic Objects ( NEW )
+//GLUquadric *quadratic;               // Storage For Our Quadratic Objects ( NEW )
 
 float points[ 45 ][ 45 ][3];                    // The Array For The Points On The Grid Of Our "Wave"
 int wiggle_count = 0;                       // Counter Used To Control How Fast Flag Waves
@@ -129,9 +129,9 @@ void DrawWidget::initializeGL()
     glFogf(GL_FOG_END, 1.0f);               // Fog End Depth
 //    glEnable(GL_FOG);                   // Enables GL_FOG
 
-    quadratic=gluNewQuadric();          // Create A Pointer To The Quadric Object ( NEW )
-    gluQuadricNormals(quadratic, GLU_SMOOTH);   // Create Smooth Normals ( NEW )
-    gluQuadricTexture(quadratic, GL_TRUE);      // Create Texture Coords ( NEW )
+//    quadratic=gluNewQuadric();          // Create A Pointer To The Quadric Object ( NEW )
+//    gluQuadricNormals(quadratic, GLU_SMOOTH);   // Create Smooth Normals ( NEW )
+//    gluQuadricTexture(quadratic, GL_TRUE);      // Create Texture Coords ( NEW )
 
     glPolygonMode( GL_BACK, GL_FILL );          // Back Face Is Filled In
     glPolygonMode( GL_FRONT, GL_LINE );         // Front Face Is Drawn With Lines
@@ -347,7 +347,7 @@ glScalef(.5,.5,.5);
 
 void DrawWidget::loadTextures(){
     qDebug() << "Textures loading...";
-    textures = new Textures();
+    textures = new Textures2();
 
     Texture * brick = new Texture();
     QImage brickIm = QGLWidget::convertToGLFormat( QImage(":/res/graphic/textures/cube.jpg") );

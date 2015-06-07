@@ -8,11 +8,11 @@ class Texture
 {
 
 public:
-    Texture();
-    ~Texture();
+    Texture(){}
+    ~Texture(){}
 
     GLuint texture[3];
     QImage *image;
 };
 
-#endif // TEXTURES_H
+#endif // TEXTURE_H

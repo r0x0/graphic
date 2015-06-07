@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "Texture.h"
+//#include "Texture.h"
 
 
 class Drawable
